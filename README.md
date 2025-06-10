@@ -10,6 +10,6 @@ Para instalar la aplicación acceda al siguiente enlace:
     https://tinyurl.com/WiresAndLadders
 ```
     
-También es posible, aceder a través de:
+También, es posible aceder a través de:
 
 <img src="./assets/images/qr-code.png" alt="WiresAndLaddersQR" width="200"/>
