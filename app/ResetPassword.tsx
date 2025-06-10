@@ -56,34 +56,40 @@ export default function ResetPassword() {
       }
    };
 
-   const resetPassword = async () => {
-      setLoading(true);
-      await fetch(apiURL + '/reset-password', {
-            method: 'POST',
-            headers: {
-               'Content-Type': 'application/json',
-               'authorization': verificationToken,
-            },
-            body: JSON.stringify({
-               newPassword: newPassword.trim(),
-            }),
-         })
-         .then(response => response.json())
-         .then(data => {
-            if (data.hasOwnProperty('affectedRows') && data.affectedRows > 0) {
-               Toast.show({ type: 'success', text1: 'Correcto', text2: 'Contraseña restablecida con éxito.', position: 'top', visibilityTime: 3000 });
-               router.replace('/Login');
-            }
-            else
-               Toast.show({ type: 'error', text1: 'Error', text2: data.message, position: 'top', visibilityTime: 3000 });
-         })
-         .catch(error => Toast.show({ type: 'error', text1: 'Error', text2: `${error}`, position: 'top', visibilityTime: 3000 }));
-      setLoading(false);
-   } 
-
-
    // Determine if the reset button should be active
    const isButtonActive = newPassword.trim().length > 0 && confirmPassword.trim().length > 0 && !errPassword && !errConfirmPassword;
+
+   const resetPassword = async () => {
+      setLoading(true);
+      validatePassword();
+      validateConfirmPassword();
+      if(newPassword.trim().length > 0 && confirmPassword.trim().length > 0 && !errPassword && !errConfirmPassword) {
+         await fetch(apiURL + '/reset-password', {
+               method: 'POST',
+               headers: {
+                  'Content-Type': 'application/json',
+                  'authorization': verificationToken,
+               },
+               body: JSON.stringify({
+                  newPassword: newPassword.trim(),
+               }),
+            })
+            .then(response => response.json())
+            .then(data => {
+               if (data.hasOwnProperty('affectedRows') && data.affectedRows > 0) {
+                  Toast.show({ type: 'success', text1: 'Correcto', text2: 'Contraseña restablecida con éxito.', position: 'top', visibilityTime: 3000 });
+                  router.replace('/Login');
+               }
+               else
+                  Toast.show({ type: 'error', text1: 'Error', text2: data.message, position: 'top', visibilityTime: 3000 });
+            })
+            .catch(error => Toast.show({ type: 'error', text1: 'Error', text2: `${error}`, position: 'top', visibilityTime: 3000 }));
+      }
+      else {
+         Toast.show({ type: 'error', text1: 'Contraseña no restablecida", "Proporcione datos correctos".', position: 'top', visibilityTime: 3000 });
+      }
+      setLoading(false);
+   } 
 
    return (
       <View style={styles.container}>

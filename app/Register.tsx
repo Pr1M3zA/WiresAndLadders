@@ -12,8 +12,7 @@ import Toast from 'react-native-toast-message';
 import { useContextProvider } from '@/utils/ContextProvider'
 
 const Gato = require('./../assets/images/GatoSalvaje.jpg');
-
-
+const IMAGE_SIZE_LIMIT = 4500000;
 
 export default function Register() {
 	const router = useRouter();
@@ -64,46 +63,52 @@ export default function Register() {
 					setImage('data:image/png;base64,' + data.userRow[0].profile_image)
 			})
 			.catch(error => {
-				Toast.show({ type: 'error', text1: "Error", text2: error, position: 'top', visibilityTime: 3000  })
+				Toast.show({ type: 'error', text1: "Error", text2: error, position: 'top', visibilityTime: 3000 })
 			});
 		setLoading(false);
 	}
 
 	const addUser = async () => {
 		setLoading(true);
+		let sizeOk = true;
 		let base64img = null;
 		if (image != (Platform.OS === 'web' ? Gato : Image.resolveAssetSource(Gato).uri)) {
 			base64img = await FileSystem.readAsStringAsync(image, { encoding: FileSystem.EncodingType.Base64 });
+			sizeOk = base64img.length < IMAGE_SIZE_LIMIT;
 		}
-		await fetch(apiURL + '/user', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify({
-				username: userName,
-				first_name: firstName,
-				last_name: lastName,
-				email: email,
-				password: password,
-				profile_image: base64img,
-			}),
-		})
-			.then(response => response.json())
-			.then(data => {
-				console.log('------ >')
-				console.log(data)
-				if (data.hasOwnProperty('affectedRows') && data.affectedRows == 1) {
-					Toast.show({ type: 'success', text1: 'Correcto', text2: `Usuario creado con exito`, position: 'top', visibilityTime: 3000 });
-					router.back();
-				}
-				if (data.hasOwnProperty('message'))
-					Toast.show({ type: 'error', text1: 'API Error', text2: data.message, position: 'top', visibilityTime: 3000 });
+		if (sizeOk) {
+			await fetch(apiURL + '/user', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					username: userName,
+					first_name: firstName,
+					last_name: lastName,
+					email: email,
+					password: password,
+					profile_image: base64img,
+				}),
 			})
-			.catch(error => {
-				console.log(error)
-				Toast.show({ type: 'error', text1: 'Error', text2: error.message, position: 'top', visibilityTime: 3000 });
-			});
+				.then(response => response.json())
+				.then(data => {
+					if (data.hasOwnProperty('affectedRows') && data.affectedRows == 1) {
+						Toast.show({ type: 'success', text1: 'Correcto', text2: `Usuario creado con exito`, position: 'top', visibilityTime: 3000 });
+						router.back();
+					}
+					if (data.hasOwnProperty('message'))
+						Toast.show({ type: 'error', text1: 'API Error', text2: data.message, position: 'top', visibilityTime: 3000 });
+				})
+				.catch(error => {
+					console.log(error)
+					Toast.show({ type: 'error', text1: 'Error', text2: error.message, position: 'top', visibilityTime: 3000 });
+				});
+
+		}
+		else {
+			Toast.show({ type: 'error', text1: 'Imagen no soportada', text2: 'La imagen de perfil es muy grande.. eliga otra', position: 'top', visibilityTime: 3000 });
+		}
 		setLoading(false);
 	}
 
@@ -275,7 +280,7 @@ export default function Register() {
 			</View>
 			<View style={styles.fieldsContainer}>
 				<View>
-					<TextInput placeholder="Nombre de usuario" placeholderTextColor={'#365C80'} value={userName.trim()} onChangeText={setUserName} onEndEditing={validateUserName} editable={!editMode}
+					<TextInput placeholder="Nombre de usuario" placeholderTextColor={'#365C80'} value={userName} onChangeText={setUserName} onEndEditing={validateUserName} editable={!editMode}
 						style={[styles.fieldInput, userName.length > 0 ? styles.fieldFilled : styles.fieldEmpty, errUserName.length == 0 ? styles.fieldOk : styles.fieldError]} />
 					<Text style={styles.errText}>{errUserName}</Text>
 				</View>
@@ -327,7 +332,7 @@ export default function Register() {
 				</TouchableOpacity>)}
 			</View>
 
-			<BottomDesign allowRanking={false}/>
+			<BottomDesign allowRanking={false} />
 
 		</View>
 	)
