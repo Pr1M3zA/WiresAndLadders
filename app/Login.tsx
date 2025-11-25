@@ -8,6 +8,7 @@ import Toast from 'react-native-toast-message';
 import BottomDesign from '@/components/BottomDesign';
 import Cube from '@/components/Cube';
 import * as UIElemets from '@/utils/ui-elements.json';
+import { getHour } from '@/utils/utils';
 
 export default function Login() {
    const router = useRouter();
@@ -21,6 +22,7 @@ export default function Login() {
 
    const loginUser = async () => {
       try {
+         console.log(`API: ${apiURL}/login: Inicio llamada a las ${getHour()}`)
          setLoading(true);
          const response = await fetch(apiURL + '/login', {
             method: 'POST',
@@ -33,6 +35,8 @@ export default function Login() {
             }),
          });
          const res = await response.json();
+         console.log(`API: ${apiURL}/login: Respuesta obtenida a las ${getHour()}`)
+
          if (res.hasOwnProperty('message')) 
             Toast.show({type: 'error', text1: 'Error', text2: `${res.message}`, position: 'top', visibilityTime: 3000 });           
          if (res.hasOwnProperty('token')){
@@ -63,12 +67,12 @@ export default function Login() {
       })
       .then(response => response.json())
       .then(data => {
-         //console.log(data)
+         console.log(data)
          if (data.hasOwnProperty('email')) {
             Toast.show({type: 'success', text1: 'Correcto', text2: `Código enviado a ${data.email}`, position: 'top', visibilityTime: 3000 });
                         router.replace({
                pathname: '/VerifyCode',
-               params: { identifier: identifier } 
+               params: { identifier: identifier }
             });
          }
          else 

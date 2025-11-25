@@ -4,6 +4,7 @@ import { useContextProvider } from '@/utils/ContextProvider'
 import Toast from 'react-native-toast-message';
 import BottomDesign from '@/components/BottomDesign'
 import Icon from '@expo/vector-icons/FontAwesome6';
+import { getHour } from '@/utils/utils';
 
 type topData = {
 	userName: number;
@@ -17,7 +18,9 @@ const topWinsRanking = () => {
 
 
 	useEffect(() => {
+		console.log(`API GET: ${apiURL}/dashboard/top-wins/10: Inicio llamada a las ${getHour()}`);
 		getData();
+		console.log(`API GET: ${apiURL}/dashboard/top-wins/10: Respuesta obtenida a las ${getHour()}`);
 	}, []);
 
 	const getData = async () => {

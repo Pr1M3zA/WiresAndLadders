@@ -10,7 +10,7 @@ interface HexagonProps {
 }
 
 const Hexagon:React.FC <HexagonProps> = (props) => {
-      let sqrt = Math.sqrt(3) * props.radius / 2
+      const sqrt = Math.sqrt(3) * props.radius / 2
       let points = `${props.radius},0 ${props.radius/2},${sqrt} ${-props.radius/2},${sqrt} ${-props.radius},0 ${-props.radius/2},${-sqrt} ${props.radius/2},${-sqrt}`
 
       return (

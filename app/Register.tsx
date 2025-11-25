@@ -1,17 +1,15 @@
-import type { PutBlobResult } from '@vercel/blob';
-
 import Icon from '@expo/vector-icons/Feather';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import * as ImgPicker from 'expo-image-picker';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Image, StyleSheet, Text, TextInput, TouchableOpacity, View, Platform } from 'react-native';
 import BottomDesign from '@/components/BottomDesign';
 import Toast from 'react-native-toast-message';
-//import Gato from '@/assets/images/GatoSalvaje.jpg';
 import { useContextProvider } from '@/utils/ContextProvider'
+import { getHour } from '@/utils/utils';
 
-const Gato = require('./../assets/images/GatoSalvaje.jpg');
+const Gato = require('@/assets/images/GatoSalvaje.jpg');
 const IMAGE_SIZE_LIMIT = 4500000;
 
 export default function Register() {
@@ -40,8 +38,12 @@ export default function Register() {
 	const [activeButton, setActiveButton] = useState(true);
 
 	useEffect(() => {
-		if (editMode)   // Leer datos actuales del usuario
+		if (editMode) {  // Leer datos actuales del usuario
+			console.log(`API: ${apiURL}/user: Inicio llamada a las ${getHour()}`)
 			getUserData();
+			console.log(`API: ${apiURL}/user: Respuesta obtenida a las ${getHour()}`)
+		}
+		if (status === null) requestPermission();
 	}, []);
 
 	const getUserData = async () => {
@@ -69,6 +71,7 @@ export default function Register() {
 	}
 
 	const addUser = async () => {
+		console.log(`API POST: ${apiURL}/user: Inicio llamada a las ${getHour()}`)
 		setLoading(true);
 		let sizeOk = true;
 		let base64img = null;
@@ -93,6 +96,7 @@ export default function Register() {
 			})
 				.then(response => response.json())
 				.then(data => {
+					console.log(`API POST: ${apiURL}/user: Respuesta obtenida a las ${getHour()}`)
 					if (data.hasOwnProperty('affectedRows') && data.affectedRows == 1) {
 						Toast.show({ type: 'success', text1: 'Correcto', text2: `Usuario creado con exito`, position: 'top', visibilityTime: 3000 });
 						router.back();
@@ -113,7 +117,7 @@ export default function Register() {
 	}
 
 	const updateUser = async () => {
-		console.log("Update user")
+		console.log(`API PUT: ${apiURL}/user: Inicio llamada a las ${getHour()}`)
 		setLoading(true);
 		let base64img = null;
 		if (image != Image.resolveAssetSource(Gato).uri)
@@ -135,7 +139,7 @@ export default function Register() {
 		})
 			.then(response => response.json())
 			.then(data => {
-				console.log(data)
+				console.log(`API PUT: ${apiURL}/user: Respuesta obtenida a las ${getHour()}`)
 				if (data.hasOwnProperty('message'))
 					Toast.show({ type: 'error', text1: 'Error', text2: data.message, position: 'top', visibilityTime: 3000 });
 				if (data.hasOwnProperty('affectedRows') && data.affectedRows == 1)
@@ -149,13 +153,13 @@ export default function Register() {
 	}
 	const validateUserName = () => {
 		setUserName(prev => prev.trim())
-		if (userName.length === 0)
+		if (userName.trim().length === 0)
 			setErrUserName('El nombre de usuario es requerido');
 		else if (userName.length > 25)
 			setErrUserName('El nombre de usuario no puede tener más de 25 caracteres');
 		else {
 			const regex = /^[a-zA-Z0-9_-]+$/;
-			if (!regex.test(userName))
+			if (!regex.test(userName.trim()))
 				setErrUserName('El nombre de usuario solo puede contener letras, números, - y _');
 			else
 				setErrUserName('');
@@ -233,10 +237,6 @@ export default function Register() {
 			setErrConfirmPassword('');
 	}
 
-	useEffect(() => {
-		if (status === null) requestPermission();
-	}, []);
-
 	const pickImage = async (from: 'gallery' | 'camera') => {
 		let result: ImgPicker.ImagePickerResult | undefined;
 		if (from === 'gallery') {
@@ -280,7 +280,7 @@ export default function Register() {
 			</View>
 			<View style={styles.fieldsContainer}>
 				<View>
-					<TextInput placeholder="Nombre de usuario" placeholderTextColor={'#365C80'} value={userName} onChangeText={setUserName} onEndEditing={validateUserName} editable={!editMode}
+					<TextInput placeholder="Nombre de usuario" placeholderTextColor={'#365C80'} value={userName} onChangeText={setUserName}  onEndEditing={validateUserName} editable={!editMode} 
 						style={[styles.fieldInput, userName.length > 0 ? styles.fieldFilled : styles.fieldEmpty, errUserName.length == 0 ? styles.fieldOk : styles.fieldError]} />
 					<Text style={styles.errText}>{errUserName}</Text>
 				</View>

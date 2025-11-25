@@ -20,6 +20,7 @@ interface diceProps {
     scale: number;
     colors: { faceUpColor: string, faceLeftColor: string, faceRightColor: string, line: string, dots: string };
     lineWidth: number;
+    isAnimated?: boolean;
 }
 
 const AnimatedG = Animated.createAnimatedComponent(G);
@@ -35,7 +36,7 @@ const Dice: FC<diceProps> = (props) => {
     }, [diceValue]);
 
     const diceClicked = () => {
-        if (!diceRolling) {
+        if (!diceRolling && props.isAnimated) {
             setDiceRolling(true);
             rotation.value = withRepeat(
                 withTiming(360, { duration: 500, easing: Easing.linear }),
@@ -82,7 +83,7 @@ const Dice: FC<diceProps> = (props) => {
             <Polygon points={faceUp} fill={props.colors.faceUpColor} stroke={props.colors.line} strokeWidth={props.lineWidth} />
             <Polygon points={faceLeft} fill={props.colors.faceLeftColor} stroke={props.colors.line} strokeWidth={props.lineWidth} />
             <Polygon points={faceRight} fill={props.colors.faceRightColor} stroke={props.colors.line} strokeWidth={props.lineWidth} />
-            {diceDots.map((point, index) => (
+            {diceDots.filter((item, idx) => idx < props.initialValue || props.isAnimated).map((point, index) => (
                 <Circle key={index} cx={point.x} cy={point.y} r={5} fill={diceRolling ? 'transparent' : props.colors.dots} />
             ))}
         </AnimatedG>

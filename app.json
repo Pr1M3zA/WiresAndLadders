@@ -48,12 +48,14 @@
             "enforceNavigationBarContrast": false
           }
         }
-      ]
+      ],
+      "expo-audio",
+      "expo-sqlite"
     ],
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "da23913e-693a-4253-86cb-4fe4de0391a7"
+        "projectId": "447afe89-4b8f-4a2f-ba8c-cc689150627a"
       }
     }
   }

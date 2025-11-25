@@ -5,6 +5,7 @@ import Icon from '@expo/vector-icons/Feather';
 import { useContextProvider } from '@/utils/ContextProvider';
 import Toast from 'react-native-toast-message';
 import BottomDesign from '@/components/BottomDesign';
+import { getHour } from '@/utils/utils';
 //import Gato from './../assets/images/GatoSalvaje.jpg';
 
  const Gato = require('./../assets/images/GatoSalvaje.jpg');
@@ -21,7 +22,7 @@ export default function Lobby() {
 	}
 	const router = useRouter();
 	let user = { id: 0, username: 'guest', first_name: 'Invitado', last_name: '', email: '', profile_image: null, isAdmin: false }
-	const { token, apiURL, setIdUser, setUserName, setAdminUser } = useContextProvider();
+	const { token, apiURL, setIdUser, setUserName, setAdminUser, setDefDice, setDefBoard } = useContextProvider();
 	const [userRow, setUserRow] = useState(user);
 	const [image, setImage] = useState(Platform.OS === 'web' ? Gato : Image.resolveAssetSource(Gato).uri);
 	const [gameCode, setGameCode] = useState('');
@@ -39,6 +40,7 @@ export default function Lobby() {
 	}, [userRow])
 
 	const getUserData = async () => {
+		console.log(`API GET: ${apiURL}/user: Inicio llamada a las ${getHour()}`)
 		setLoading(true);
 		await fetch(apiURL + '/user', {
 			method: 'GET',
@@ -49,11 +51,14 @@ export default function Lobby() {
 		})
 			.then(response => response.json())
 			.then(data => {
+				console.log(`API GET: ${apiURL}/user: Respuesta obtenida a las ${getHour()}`)
 				if (data.hasOwnProperty('message')) throw new Error(data.message);
 				setUserRow(data.userRow[0]);
 				setIdUser(data.userRow[0].id);
 				setUserName(data.userRow[0].username);
 				setAdminUser(data.userRow[0].isAdmin === 1 ? true : false)
+				setDefBoard(data.userRow[0].id_board)
+				setDefDice(data.userRow[0].id_dice)
 			})
 			.catch(error => {
 				Toast.show({ type: 'error', text1: "Error", text2: error })
