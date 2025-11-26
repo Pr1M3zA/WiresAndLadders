@@ -223,19 +223,23 @@ export default function BoardGame() {
 
 		if (finalTileIdx === hexTiles.length - 1) {
 			isGameNowOver = true;
-			winnerOfGame = playerWhoMoved.dbUserId;
-			const winnerPlayerIndex = allPlayersArray.findIndex(p => p.dbUserId === winnerOfGame);
-			if (winnerPlayerIndex !== -1) {
-				allPlayersArray[winnerPlayerIndex].pointsAccumulated += 25;
-				Toast.show({ type: 'info', text1: '¡Bono de Victoria!', text2: `${allPlayersArray[winnerPlayerIndex].userName} gana 25 puntos extra.` });
+			const playerFinishGame = playerWhoMoved.dbUserId;
+			const playerFinishGameIndex = allPlayersArray.findIndex(p => p.dbUserId === playerFinishGame);
+			if(playerFinishGameIndex !== -1){
+				allPlayersArray[playerFinishGameIndex].pointsAccumulated += 25;
+				Toast.show({ type: 'info', text1: '¡Bono de llegada a la meta!', text2: `${allPlayersArray[playerFinishGameIndex].userName} gana 25 puntos extra.` });
 			}
+			const arrayOrdenado = [...allPlayersArray].sort((a, b) => b.pointsAccumulated - a.pointsAccumulated);
+			const winnerPlayer = arrayOrdenado[0];
+			winnerOfGame = winnerPlayer.dbUserId;
+			
+			const winnerPlayerIndex = allPlayersArray.findIndex(p => p.dbUserId === winnerOfGame);
 
 			const newGameOverallStats = { ...gameOverallStats, winnerUserId: winnerOfGame, endTime: new Date() };
 			setGameOverallStats(newGameOverallStats);
 			setGameEnded(true);
 			setIsMyTurn(false);
-			Toast.show({ type: 'success', text1: '¡Fin del Juego!', text2: `${playerWhoMoved.userName} es el ganador.` });
-			saveGameStats();
+			Toast.show({ type: 'success', text1: '¡Fin del Juego!', text2: `${winnerPlayer.userName} es el ganador.` });
 			setIsGameStatsModalVisible(true);
 		}
 
@@ -317,8 +321,6 @@ const PlayerLeaveGame = (userId: number, currentPlayers: PlayerGameState[], curr
 	const saveGameStats = async () => {
 		const finalPlayersState = playersState; // Usar el estado más reciente
 		const finalGameStats = { ...gameOverallStats, endTime: gameOverallStats.endTime || new Date() };
-
-		finalGameStats.winnerUserId = finalPlayersState[currentPlayerIndex].dbUserId
 
 		if (!finalGameStats.gameId || !finalGameStats.startTime || !finalGameStats.endTime || finalGameStats.winnerUserId === null) {
 			Toast.show({ type: 'error', text1: 'Error Interno', text2: 'Faltan datos para guardar estadísticas.' });
@@ -436,8 +438,11 @@ const PlayerLeaveGame = (userId: number, currentPlayers: PlayerGameState[], curr
 
 	const handleCloseGameStatsModal = () => {
 		setIsGameStatsModalVisible(false);
-		if(gameOverallStats.winnerUserId !== null) 
+		if(gameOverallStats.winnerUserId !== null) {
+			if(idUser === playersState[0].dbUserId) 
+				saveGameStats();
 			router.back();
+		}
 	};
 	const handleOpenConfigModal = () => {  setIsCfgModalVisible(true) }
 
