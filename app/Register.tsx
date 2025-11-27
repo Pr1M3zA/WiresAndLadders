@@ -17,7 +17,7 @@ export default function Register() {
 	const params = useLocalSearchParams<{ mode: string }>();
 	const editMode = params.mode === 'edit';
 
-	const { apiURL, token } = useContextProvider();
+	const { apiURL, token, adminUser } = useContextProvider();
 	const [userName, setUserName] = useState('');
 	const [firstName, setFirstName] = useState('');
 	const [lastName, setLastName] = useState('');
@@ -39,9 +39,14 @@ export default function Register() {
 
 	useEffect(() => {
 		if (editMode) {  // Leer datos actuales del usuario
-			console.log(`API: ${apiURL}/user: Inicio llamada a las ${getHour()}`)
+			const InitCallHour = new Date();
+			console.log(`Obtener userData: API GET: ${apiURL}/user: Inicio llamada a las ${getHour(InitCallHour)}`)
 			getUserData();
-			console.log(`API: ${apiURL}/user: Respuesta obtenida a las ${getHour()}`)
+			const EndCallHour = new Date();
+			console.log(`Obtener userData: API: GET ${apiURL}/user: Respuesta obtenida a las ${getHour(EndCallHour)}`)
+			if(adminUser) 
+				Toast.show({ type: 'info', text1: 'Obtener userData', text2: `Respuesta en ${EndCallHour.getTime() - InitCallHour.getTime()} ms}`, position: "bottom", visibilityTime: 5000 });
+
 		}
 		if (status === null) requestPermission();
 	}, []);
@@ -71,7 +76,8 @@ export default function Register() {
 	}
 
 	const addUser = async () => {
-		console.log(`API POST: ${apiURL}/user: Inicio llamada a las ${getHour()}`)
+		const InitCallHour = new Date();
+		console.log(`Agregar usuario: API POST: ${apiURL}/user: Inicio llamada a las ${getHour(InitCallHour)}`)
 		setLoading(true);
 		let sizeOk = true;
 		let base64img = null;
@@ -96,9 +102,13 @@ export default function Register() {
 			})
 				.then(response => response.json())
 				.then(data => {
-					console.log(`API POST: ${apiURL}/user: Respuesta obtenida a las ${getHour()}`)
+					const EndCallHour = new Date();
+					console.log(`Agregar usuario: API POST: ${apiURL}/user: Respuesta obtenida a las ${getHour(EndCallHour)}`)
 					if (data.hasOwnProperty('affectedRows') && data.affectedRows == 1) {
-						Toast.show({ type: 'success', text1: 'Correcto', text2: `Usuario creado con exito`, position: 'top', visibilityTime: 3000 });
+						if(adminUser) 
+							Toast.show({ type: 'info', text1: 'Agregar usuario', text2: `Respuesta obtenida en ${EndCallHour.getTime()-InitCallHour.getTime()} ms	`, position: "bottom", visibilityTime: 5000 });
+						else
+							Toast.show({ type: 'success', text1: 'Correcto', text2: `Usuario creado con exito`, position: 'top', visibilityTime: 3000 });
 						router.back();
 					}
 					if (data.hasOwnProperty('message'))
@@ -117,7 +127,8 @@ export default function Register() {
 	}
 
 	const updateUser = async () => {
-		console.log(`API PUT: ${apiURL}/user: Inicio llamada a las ${getHour()}`)
+		const InitCallHour = new Date();
+		console.log(`Actualizar usuario: API PUT: ${apiURL}/user: Inicio llamada a las ${getHour(InitCallHour)}`)
 		setLoading(true);
 		let base64img = null;
 		if (image != Image.resolveAssetSource(Gato).uri)
@@ -139,11 +150,15 @@ export default function Register() {
 		})
 			.then(response => response.json())
 			.then(data => {
-				console.log(`API PUT: ${apiURL}/user: Respuesta obtenida a las ${getHour()}`)
+				const EndCallHour = new Date();
+				console.log(`Actualizar usuario: API PUT: ${apiURL}/user: Respuesta obtenida a las ${getHour(EndCallHour)}`)
 				if (data.hasOwnProperty('message'))
 					Toast.show({ type: 'error', text1: 'Error', text2: data.message, position: 'top', visibilityTime: 3000 });
 				if (data.hasOwnProperty('affectedRows') && data.affectedRows == 1)
-					Toast.show({ type: 'success', text1: 'Correcto', text2: `Usuario actualizado con éxito`, position: 'top', visibilityTime: 3000 });
+					if(adminUser) 
+						Toast.show({ type: 'info', text1: 'Actualizar usuario', text2: `Respuesta en ${EndCallHour.getTime()-InitCallHour.getTime()} ms`, position: "bottom", visibilityTime: 5000 });
+					else
+						Toast.show({ type: 'success', text1: 'Correcto', text2: `Usuario actualizado con éxito`, position: 'top', visibilityTime: 3000 });
 			})
 			.catch(error => {
 				console.log(error)

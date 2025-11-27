@@ -79,8 +79,8 @@ const ModalConfig: FC<modalCfgProps> = (props) => {
 								</TouchableOpacity>
 							</View>
 						</View>
-                  <TouchableOpacity style={styles.closeButton}>
-                     <Text style={styles.closeButtonText} onPress={() => props.handleModalClose(volEffects, volMusic, idxDice)}>Aplicar</Text>
+                  <TouchableOpacity style={styles.closeButton} onPress={() => props.handleModalClose(volEffects, volMusic, idxDice)}>
+                     <Text style={styles.closeButtonText}>Aplicar</Text>
                   </TouchableOpacity>
                </View>
             </View> 

@@ -18,11 +18,12 @@ export default function Login() {
    const [identifier, setIdentifier] = useState('');
    const [password, setPassword] = useState('');
    const [loading, setLoading] = useState(false);
-   const { setToken, apiURL } = useContextProvider();
+   const { setToken, apiURL, adminUser } = useContextProvider();
 
    const loginUser = async () => {
       try {
-         console.log(`API: ${apiURL}/login: Inicio llamada a las ${getHour()}`)
+   		const InitCallHour = new Date();
+         console.log(`Login: API: ${apiURL}/login: Inicio llamada a las ${getHour(InitCallHour)}`)
          setLoading(true);
          const response = await fetch(apiURL + '/login', {
             method: 'POST',
@@ -35,13 +36,16 @@ export default function Login() {
             }),
          });
          const res = await response.json();
-         console.log(`API: ${apiURL}/login: Respuesta obtenida a las ${getHour()}`)
-
+         const EndCallHour = new Date();
+         console.log(`API: ${apiURL}/login: Respuesta obtenida a las ${getHour(EndCallHour)}`)
          if (res.hasOwnProperty('message')) 
             Toast.show({type: 'error', text1: 'Error', text2: `${res.message}`, position: 'top', visibilityTime: 3000 });           
          if (res.hasOwnProperty('token')){
             setToken(res.token);
-            Toast.show({type: 'success', text1: 'Correcto', text2: `Acceso concedido`, position: 'top', visibilityTime: 2000 }); 
+            if(adminUser)
+               Toast.show({ type: 'info', text1: 'Login', text2: `API GET: Respuesta en ${EndCallHour.getTime()-InitCallHour.getTime()} ms`, position: "bottom", visibilityTime: 5000 });
+            else
+               Toast.show({type: 'success', text1: 'Correcto', text2: `Acceso concedido`, position: 'top', visibilityTime: 2000 }); 
             router.replace('/Lobby');
          }
          else

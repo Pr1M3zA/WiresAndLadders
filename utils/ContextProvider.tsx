@@ -16,7 +16,9 @@ interface contextProps {
 	defDice: number;
 	setDefDice: (defDice: number) => void;	
 	apiURL: string;
+	setApiURL: (apiURL: string) => void;
 	socketURL: string;
+	setSocketURL: (socketURL: string) => void;
    socket: Socket | null;
    setSocket: (socket: Socket | null) => void;	
 	boards: BoardType[];
@@ -37,7 +39,8 @@ const Context = createContext<contextProps>({
 	token: '', setToken: () => { },
 	idUser: 0, setIdUser: () => { },
 	userName: '', setUserName: () => { },
-	apiURL: '', socketURL: '',
+	apiURL: '', setApiURL: () => { },
+	socketURL: '', setSocketURL: () => { },
 	adminUser: false, setAdminUser: () => { },
 	defBoard: 1, setDefBoard: () => { },
 	defDice: 1, setDefDice: () => {},
@@ -62,16 +65,19 @@ export const ContextProvider: React.FC<providerProps> = ({ children }) => {
 	const [tileTypes, setTileTypes] = useState<EffectType[]>([]);
 	const [shortcuts, setShortcuts] = useState<ShortCutType[]>([]);
 	const [dices, setDices] = useState<DiceType[]>([]);
+	const [apiURL, setApiURL] = useState('https://wires-and-ladders-api.vercel.app');
+	const [socketURL, setSocketURL] = useState('https://wires-and-ladders-socket.onrender.com');
+
 	//const apiURL = 'http://192.168.68.115:3000';
 	//const socketURL = 'http://192.168.68.115:3001';
-	const apiURL = 'https://wires-and-ladders-api.vercel.app';   
-	const socketURL = 'https://wires-and-ladders-socket.onrender.com';	 
+	//const apiURL = 'https://wires-and-ladders-api.vercel.app';   
+	//const socketURL = 'https://wires-and-ladders-socket.onrender.com';	 
 
 	return (
 		<Context.Provider value={{ 
 				token, setToken, idUser, setIdUser, userName, setUserName, adminUser, setAdminUser, defBoard, setDefBoard, defDice, setDefDice,
 				boards, setBoards, tiles, setTiles, shortcuts, setShortcuts, tileTypes, setTileTypes, dices, setDices,
-				apiURL, socketURL, socket, setSocket }}>
+				apiURL, socketURL, setApiURL, setSocketURL, socket, setSocket }}>
 			{children}
 		</Context.Provider>
 	);

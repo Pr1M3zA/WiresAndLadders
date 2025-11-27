@@ -2,10 +2,10 @@ import Toast from 'react-native-toast-message';
 import * as SQLite from 'expo-sqlite';
 import type { BoardBackgroundType, DbBoardType, TileType, DiceType, EducationType, EffectType, ShortCutType } from '@/utils/types';
 
-const SyncBoardData = async (apiURL: string, db: SQLite.SQLiteDatabase) => {
+const SyncBoardData = async (apiURL: string, db: SQLite.SQLiteDatabase, dropTables: boolean = false) => {
    // Abrimos (o creamos si no existe) la base de datos
    const toSync = {bg: false, boards: false, tiles: false, shortcuts: false, tileTypes: false, dices: false, education: false}
-   //const db = await SQLite.openDatabaseAsync('WiresAndLadders.db');
+   if (dropTables) await DbDropTables(db);
    // Si no existen, creamos la estructura de tablas, indices y vistas
    await DbCreateTables(db); 
    // Checar Board Backgrounds en local db

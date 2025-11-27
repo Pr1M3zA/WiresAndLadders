@@ -4,12 +4,12 @@
     "slug": "WiresAndLadders",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/WireLaddersIcon.png",
+    "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "scheme": "myapp",
     "splash": {
-      "image": "./assets/WireLaddersIcon.png",
+      "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -19,7 +19,7 @@
     "android": {
       "softwareKeyboardLayoutMode": "pan",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/WireLaddersIcon.png",
+        "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,

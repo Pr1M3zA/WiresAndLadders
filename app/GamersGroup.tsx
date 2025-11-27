@@ -16,10 +16,11 @@ interface UserInGroup {
 }
 
 export default function GamersGroup() {
+	const InitCallHour = new Date();
 	const router = useRouter();
 	const params = useLocalSearchParams<{ mode: string; roomCode: string }>();
 	const { mode, roomCode } = params;
-	const { idUser, setIdUser, userName, setUserName, defBoard, setDefBoard, apiURL, socketURL, socket, setSocket, boards, setBoards, shortcuts, setShortcuts, tiles, setTiles, tileTypes, setTileTypes} = useContextProvider(); 
+	const { idUser, setIdUser, userName, setUserName, defBoard, apiURL, socketURL, socket, setSocket, boards, adminUser} = useContextProvider(); 
 	const [usersInGroup, setUsersInGroup] = useState<UserInGroup[]>([]);
 	const [currentRoomCode, setCurrentRoomCode] = useState(roomCode);
 	const [isLoading, setIsLoading] = useState(false);
@@ -55,7 +56,7 @@ export default function GamersGroup() {
 			return;
 		}*/
 
-		console.log(`API SOCKETS: ${socketURL}: Inicio llamada a las ${getHour()}`)
+		//console.log(`API SOCKETS: ${socketURL}: Inicio llamada a las ${getHour()}`)
 		const newSocket = io(socketURL, {
 			query: {
 				dbUserId: idUser,
@@ -67,7 +68,7 @@ export default function GamersGroup() {
 		setIsLoading(true);
 
 		newSocket.on('connect', () => {
-			console.log(`API SOCKETS (connect): ${socketURL}: Inicio llamada a las ${getHour()}`)
+			console.log(`API SOCKETS (connect): ${socketURL}: Inicio llamada a las ${getHour(InitCallHour)}`)
 			if (isCreator) { // Creador
 				newSocket.emit('createRoom', { roomCode: currentRoomCode, user: { id: idUser, userName }, idBoardGame: 1 });
 			} else { // Unirse
@@ -94,16 +95,24 @@ export default function GamersGroup() {
 			setUsersInGroup(users);
 			setIsCreator(creatorStatus);
 			setIsLoading(false);
-			Toast.show({ type: 'success', text1: 'Sala Creada', text2: `Código: ${roomCode}` });
-			console.log(`API SOCKETS (roomCreated): ${socketURL}: Respuesta obtenida a las ${getHour()}`)
+			const EndCallHour = new Date();
+			if(adminUser)
+				Toast.show({ type: 'info', text1: 'Sala creada', text2: `API SOCKETS (roomCreated): respuesta en ${EndCallHour.getTime()-InitCallHour.getTime()} ms`, position: "bottom", visibilityTime: 5000 });
+			else
+				Toast.show({ type: 'success', text1: 'Sala Creada', text2: `Código: ${roomCode}` });
+			console.log(`API SOCKETS (roomCreated): ${socketURL}: Respuesta obtenida a las ${getHour(EndCallHour)}; ${InitCallHour.getTime()} to ${EndCallHour.getTime()}`)
 		});
 
 		newSocket.on('joinedRoom', ({ roomCode, users }: { roomCode: string; users: UserInGroup[] }) => {
 			setCurrentRoomCode(roomCode);
 			setUsersInGroup(users);
 			setIsLoading(false);
-			Toast.show({ type: 'success', text1: 'Te Uniste a la Sala', text2: `Código: ${roomCode}` });
-			console.log(`API SOCKETS (joinedRoom): ${socketURL}: Respuesta obtenida a las ${getHour()}`)
+			const EndCallHour = new Date();
+			if(adminUser)
+				Toast.show({ type: 'info', text1: 'Te uniste a la sala', text2: `API SOCKETS (joinedRoom): Respuesta en ${EndCallHour.getTime()-InitCallHour.getTime()} ms`, position: "bottom", visibilityTime: 5000 });
+			else
+				Toast.show({ type: 'success', text1: 'Te Uniste a la Sala', text2: `Código: ${roomCode}` });
+			console.log(`API SOCKETS (joinedRoom): ${socketURL}: Respuesta obtenida a las ${getHour(EndCallHour)}`)
 		});
 
 		newSocket.on('groupUpdate', ({ users, idBoard }: { users: UserInGroup[], idBoard: number}) => {
@@ -203,6 +212,7 @@ export default function GamersGroup() {
 				<Text style={styles.title}>Sala de Espera</Text>
 				{currentRoomCode && <Text style={styles.roomCodeText}>{currentRoomCode}</Text>}
 			</View>
+			{/* Selección del tablero */}
 			<View style={styles.boardCointainer}>
 				<Text>Generación:</Text>
 				<View style={styles.selBoardCointainer}>
@@ -225,6 +235,7 @@ export default function GamersGroup() {
 					</View>
 				</View>
 			</View>
+			
 			<View style={styles.playersContainer}>
 				<Text style={styles.usersTitle}>Jugadores ({usersInGroup.length}/6):</Text>
 				<FlatList

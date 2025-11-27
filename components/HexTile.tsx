@@ -1,5 +1,5 @@
 import { FC, memo } from 'react';
-import { G, Path, Text as SvgText, ForeignObject, Polygon, Line } from 'react-native-svg';
+import { G, Path, Text as SvgText, Polygon } from 'react-native-svg';
 import Hexagon from "./Hexagon";
 import { useContextProvider } from '@/utils/ContextProvider';
 import type { TileType } from '@/utils/types';

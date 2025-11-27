@@ -39,6 +39,7 @@ const ladderColor = { base: 'sandybrown', rung: 'saddlebrown' };
 const playerIdxOffSet = [{x: -5, y: 0}, {x:5, y: 0}, {x: -3, y: -3}, {x: 3, y:-3}, {x: -3, y: 3}, {x: 3, y: 3}]
 
 export default function BoardGame() {
+	const InitCallHour = new Date()
 	// Inicializa sonidos
 	const correct = useAudioPlayer(correctSrc);
 	const fail = useAudioPlayer(failSrc);
@@ -50,7 +51,7 @@ export default function BoardGame() {
 	// Constantes del juego
 	const router = useRouter();
 	const params = useLocalSearchParams<GameBoardParams>();
-	const { token, apiURL, socket, idUser, boards, tiles, shortcuts, dices } = useContextProvider();
+	const { token, apiURL, socket, idUser, boards, tiles, shortcuts, dices, adminUser } = useContextProvider();
 	const idBoard = parseInt(params.idBoard, 10);
 	const hexTiles = tiles.filter(t => t.id_board === idBoard)
 	const shortCuts = shortcuts.filter(s => s.id_board === idBoard)
@@ -85,7 +86,7 @@ export default function BoardGame() {
 	const [dice, setDice] = useState<DiceType>(dices[0]);
 
 	useEffect(() => {
-		console.log(`Carga de Tablero: ${apiURL}/user: iniciando llamada a las ${getHour()}`)
+		console.log(`Carga de Tablero: ${apiURL}/user: iniciando llamada a las ${getHour(InitCallHour)}`)
 		GetEducationData();
 	}, []);
 
@@ -225,21 +226,20 @@ export default function BoardGame() {
 			isGameNowOver = true;
 			const playerFinishGame = playerWhoMoved.dbUserId;
 			const playerFinishGameIndex = allPlayersArray.findIndex(p => p.dbUserId === playerFinishGame);
-			if(playerFinishGameIndex !== -1){
+			if (playerFinishGameIndex !== -1) {
 				allPlayersArray[playerFinishGameIndex].pointsAccumulated += 25;
 				Toast.show({ type: 'info', text1: '¡Bono de llegada a la meta!', text2: `${allPlayersArray[playerFinishGameIndex].userName} gana 25 puntos extra.` });
 			}
 			const arrayOrdenado = [...allPlayersArray].sort((a, b) => b.pointsAccumulated - a.pointsAccumulated);
-			const winnerPlayer = arrayOrdenado[0];
-			winnerOfGame = winnerPlayer.dbUserId;
-			
+			const playerWithMostPoints = arrayOrdenado[0];
+			winnerOfGame = playerWithMostPoints.dbUserId;
 			const winnerPlayerIndex = allPlayersArray.findIndex(p => p.dbUserId === winnerOfGame);
 
 			const newGameOverallStats = { ...gameOverallStats, winnerUserId: winnerOfGame, endTime: new Date() };
 			setGameOverallStats(newGameOverallStats);
 			setGameEnded(true);
 			setIsMyTurn(false);
-			Toast.show({ type: 'success', text1: '¡Fin del Juego!', text2: `${winnerPlayer.userName} es el ganador.` });
+			Toast.show({ type: 'success', text1: '¡Fin del Juego!', text2: `${playerWithMostPoints.userName} es el ganador.` });
 			setIsGameStatsModalVisible(true);
 		}
 
@@ -321,6 +321,8 @@ const PlayerLeaveGame = (userId: number, currentPlayers: PlayerGameState[], curr
 	const saveGameStats = async () => {
 		const finalPlayersState = playersState; // Usar el estado más reciente
 		const finalGameStats = { ...gameOverallStats, endTime: gameOverallStats.endTime || new Date() };
+
+		//finalGameStats.winnerUserId = finalPlayersState[currentPlayerIndex].dbUserId
 
 		if (!finalGameStats.gameId || !finalGameStats.startTime || !finalGameStats.endTime || finalGameStats.winnerUserId === null) {
 			Toast.show({ type: 'error', text1: 'Error Interno', text2: 'Faltan datos para guardar estadísticas.' });
@@ -438,12 +440,12 @@ const PlayerLeaveGame = (userId: number, currentPlayers: PlayerGameState[], curr
 
 	const handleCloseGameStatsModal = () => {
 		setIsGameStatsModalVisible(false);
-		if(gameOverallStats.winnerUserId !== null) {
-			if(idUser === playersState[0].dbUserId) 
-				saveGameStats();
+		if(gameOverallStats.winnerUserId) { 
+			if(idUser === playersState[0].dbUserId) saveGameStats();
 			router.back();
 		}
 	};
+
 	const handleOpenConfigModal = () => {  setIsCfgModalVisible(true) }
 
 	const handleCloseCfgModal = (volEff: number, volMusica: number, idxDice: number) => { 
@@ -486,6 +488,9 @@ const PlayerLeaveGame = (userId: number, currentPlayers: PlayerGameState[], curr
 			const db = await SQLite.openDatabaseAsync('WiresAndLadders.db', { useNewConnection: true }) ;
 			await db.getAllAsync(`SELECT id, generation, theme, information, question, answer_1, answer_2, answer_3, answer_4, answer_ok FROM education WHERE generation=${myBoard.education} OR ${myBoard.education} = 0`) 
 				.then(data => { 
+					const EndCallHour = new Date()
+					if(adminUser)
+						Toast.show({ type: 'info', text1: 'Load Board', text2: `Carga de tablero: respuesta en ${EndCallHour.getTime()-InitCallHour.getTime()} ms`, position: "bottom", visibilityTime: 5000 });
 					setEducationData(data as EducationType[]) 
 					setIsLoading(false)
 				})
