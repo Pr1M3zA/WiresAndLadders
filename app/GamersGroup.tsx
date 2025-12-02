@@ -50,13 +50,6 @@ export default function GamersGroup() {
 	}, [usersInGroup])
 
 	useEffect(() => {
-		/*if (!idUser || !userName) {
-			Toast.show({ type: 'error', text1: 'Error de Usuario', text2: 'No se pudo obtener la información del usuario.' });
-			router.back();
-			return;
-		}*/
-
-		//console.log(`API SOCKETS: ${socketURL}: Inicio llamada a las ${getHour()}`)
 		const newSocket = io(socketURL, {
 			query: {
 				dbUserId: idUser,

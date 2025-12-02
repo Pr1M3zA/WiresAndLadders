@@ -23,7 +23,7 @@ export default function Login() {
    const loginUser = async () => {
       try {
    		const InitCallHour = new Date();
-         console.log(`Login: API: ${apiURL}/login: Inicio llamada a las ${getHour(InitCallHour)}`)
+         //console.log(`Login: API: ${apiURL}/login: Inicio llamada a las ${getHour(InitCallHour)}`)
          setLoading(true);
          const response = await fetch(apiURL + '/login', {
             method: 'POST',
@@ -37,9 +37,7 @@ export default function Login() {
          });
          const res = await response.json();
          const EndCallHour = new Date();
-         console.log(`API: ${apiURL}/login: Respuesta obtenida a las ${getHour(EndCallHour)}`)
-         if (res.hasOwnProperty('message')) 
-            Toast.show({type: 'error', text1: 'Error', text2: `${res.message}`, position: 'top', visibilityTime: 3000 });           
+         //console.log(`API: ${apiURL}/login: Respuesta obtenida a las ${getHour(EndCallHour)}`)
          if (res.hasOwnProperty('token')){
             setToken(res.token);
             if(adminUser)
@@ -47,9 +45,9 @@ export default function Login() {
             else
                Toast.show({type: 'success', text1: 'Correcto', text2: `Acceso concedido`, position: 'top', visibilityTime: 2000 }); 
             router.replace('/Lobby');
-         }
-         else
-            setToken('')
+         } else if (res.hasOwnProperty('message')) {
+            Toast.show({type: 'error', text1: 'Error', text2: `${res.message}`, position: 'top', visibilityTime: 3000 });
+         } 
       } catch (error) {
          Toast.show({type: 'error', text1: 'Error', text2: `${error}`, position: 'top', visibilityTime: 3000 });
       }
@@ -57,7 +55,7 @@ export default function Login() {
          setLoading(false);
       }
    }
-
+   
    const sendCode = async () => {
       setLoading(true);
       await fetch(apiURL + '/send-reset-code', {
@@ -71,7 +69,7 @@ export default function Login() {
       })
       .then(response => response.json())
       .then(data => {
-         console.log(data)
+         //console.log(data)
          if (data.hasOwnProperty('email')) {
             Toast.show({type: 'success', text1: 'Correcto', text2: `Código enviado a ${data.email}`, position: 'top', visibilityTime: 3000 });
                         router.replace({

@@ -34,13 +34,13 @@ export default function Lobby() {
 
 	useEffect(() => {
 		if (userRow.profile_image != null) { // cargar la imagen si no es null
-			console.log("Set image from mysql")
+			//console.log("Set image from mysql")
 			setImage('data:image/png;base64,' + userRow.profile_image)
 		}
 	}, [userRow])
 
 	const getUserData = async () => {
-		console.log(`API GET: ${apiURL}/user: Inicio llamada a las ${getHour()}`)
+		//console.log(`API GET: ${apiURL}/user: Inicio llamada a las ${getHour()}`)
 		setLoading(true);
 		await fetch(apiURL + '/user', {
 			method: 'GET',
@@ -51,7 +51,7 @@ export default function Lobby() {
 		})
 			.then(response => response.json())
 			.then(data => {
-				console.log(`API GET: ${apiURL}/user: Respuesta obtenida a las ${getHour()}`)
+				//console.log(`API GET: ${apiURL}/user: Respuesta obtenida a las ${getHour()}`)
 				if (data.hasOwnProperty('message')) throw new Error(data.message);
 				setUserRow(data.userRow[0]);
 				setIdUser(data.userRow[0].id);
